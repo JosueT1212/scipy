@@ -290,6 +290,19 @@ def test_gegenbauer_infinity(n, alpha, x):
     assert_allclose(_ufuncs.eval_gegenbauer(int(n), alpha, x), expected, rtol=1e-10)
     assert_allclose(_ufuncs.eval_gegenbauer(float(n), alpha, x), expected, rtol=1e-10)
 
+
+@pytest.mark.parametrize("n", [-1, -2, -10, -101])
+@pytest.mark.parametrize("alpha", [-10.0, -0.45, 0.25, 1.0, 2.0])
+@pytest.mark.parametrize("x", [-10.0, -1.0, 0.0, 1.0, 10.0])
+def test_gegenbauer_negative_integer_n(n, alpha, x):
+    # gh-25818 - Gegenbauer polynomials vanish identically for negative
+    # integer n; check this is returned exactly rather than nan (which
+    # happens when the general gamma-ratio/hyp2f1 path hits a pole of the
+    # gamma function at negative integer n).
+    assert _ufuncs.eval_gegenbauer(n, alpha, x) == 0.0
+    assert _ufuncs.eval_gegenbauer(float(n), alpha, x) == 0.0
+
+
 @pytest.mark.parametrize(
     "n, expected",
     [

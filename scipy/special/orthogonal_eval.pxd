@@ -189,8 +189,11 @@ cdef inline double eval_gegenbauer_l(Py_ssize_t n, double alpha, double x) noexc
 
 @cython.cdivision(True)
 cdef inline number_t eval_gegenbauer(double n, double alpha, number_t x) noexcept nogil:
-    # If n is an integer, use more stable `eval_gegenbauer_l`
-    if number_t is double and n >= 0 and n < 1e10 and n == <long long> n:
+    # If n is an integer, use more stable `eval_gegenbauer_l`. This also
+    # covers negative integer n, for which `eval_gegenbauer_l` returns 0
+    # (the polynomial vanishes identically); the general path below hits
+    # poles of the gamma function at negative integer n and returns nan.
+    if number_t is double and -1e10 < n < 1e10 and n == <long long> n:
         return <number_t> eval_gegenbauer_l(<Py_ssize_t> n, alpha, <double> x)
 
     cdef double a, b, c, d
